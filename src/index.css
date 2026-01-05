@@ -16,9 +16,9 @@
     --popover: 40 30% 100%;
     --popover-foreground: 30 10% 15%;
 
-    /* Sage green primary - welcoming and homey */
-    --primary: 90 15% 42%;
-    --primary-foreground: 40 33% 98%;
+    /* Light teal primary - refreshing and welcoming */
+    --primary: 185 45% 50%;
+    --primary-foreground: 0 0% 100%;
 
     /* Warm cream secondary */
     --secondary: 40 25% 94%;
@@ -36,24 +36,24 @@
 
     --border: 40 20% 88%;
     --input: 40 20% 88%;
-    --ring: 90 15% 42%;
+    --ring: 185 45% 50%;
 
     --radius: 0.75rem;
 
     /* Custom properties for the app */
-    --hero-gradient: linear-gradient(135deg, hsl(90 15% 42% / 0.08) 0%, hsl(35 80% 55% / 0.08) 100%);
+    --hero-gradient: linear-gradient(135deg, hsl(185 45% 50% / 0.08) 0%, hsl(35 80% 55% / 0.08) 100%);
     --card-shadow: 0 4px 24px -4px hsl(30 10% 15% / 0.08);
     --card-shadow-hover: 0 12px 40px -8px hsl(30 10% 15% / 0.15);
-    --glow-primary: 0 0 40px hsl(90 15% 42% / 0.2);
+    --glow-primary: 0 0 40px hsl(185 45% 50% / 0.2);
 
     --sidebar-background: 40 30% 97%;
     --sidebar-foreground: 30 10% 25%;
-    --sidebar-primary: 90 15% 42%;
-    --sidebar-primary-foreground: 40 33% 98%;
+    --sidebar-primary: 185 45% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 40 25% 94%;
     --sidebar-accent-foreground: 30 10% 25%;
     --sidebar-border: 40 20% 88%;
-    --sidebar-ring: 90 15% 42%;
+    --sidebar-ring: 185 45% 50%;
   }
 
   .dark {
@@ -66,8 +66,8 @@
     --popover: 30 15% 12%;
     --popover-foreground: 40 20% 95%;
 
-    --primary: 90 20% 55%;
-    --primary-foreground: 30 15% 8%;
+    --primary: 185 50% 55%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 30 15% 18%;
     --secondary-foreground: 40 20% 90%;
@@ -83,21 +83,21 @@
 
     --border: 30 12% 22%;
     --input: 30 12% 22%;
-    --ring: 90 20% 55%;
+    --ring: 185 50% 55%;
 
-    --hero-gradient: linear-gradient(135deg, hsl(90 20% 55% / 0.1) 0%, hsl(35 75% 50% / 0.1) 100%);
+    --hero-gradient: linear-gradient(135deg, hsl(185 50% 55% / 0.1) 0%, hsl(35 75% 50% / 0.1) 100%);
     --card-shadow: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
     --card-shadow-hover: 0 12px 40px -8px hsl(0 0% 0% / 0.5);
-    --glow-primary: 0 0 40px hsl(90 20% 55% / 0.15);
+    --glow-primary: 0 0 40px hsl(185 50% 55% / 0.15);
 
     --sidebar-background: 30 15% 10%;
     --sidebar-foreground: 40 20% 90%;
-    --sidebar-primary: 90 20% 55%;
-    --sidebar-primary-foreground: 30 15% 8%;
+    --sidebar-primary: 185 50% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 30 15% 18%;
     --sidebar-accent-foreground: 40 20% 90%;
     --sidebar-border: 30 12% 22%;
-    --sidebar-ring: 90 20% 55%;
+    --sidebar-ring: 185 50% 55%;
   }
 }
 
