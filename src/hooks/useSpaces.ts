@@ -85,12 +85,127 @@ export function useSpaces() {
       return null;
     }
 
+    // Create a sample "Getting Started" page with markdown examples
+    const sampleContent = `Welcome to your new space! This sample page shows you how to format your content using simple text patterns. **Just copy and modify these examples** for your own pages.
+
+---
+
+## 📝 Text Formatting
+
+Make text **bold** by wrapping it with double asterisks.
+
+Make text *italic* by wrapping it with single asterisks.
+
+Make text ***bold and italic*** by using triple asterisks.
+
+---
+
+## 📋 Lists
+
+### Bullet Lists
+- WiFi network: GuestWiFi
+- Password: welcome2024
+- Check-out time: 11:00 AM
+
+### Numbered Lists
+1. Turn on the coffee machine
+2. Wait for the green light
+3. Press the large button
+4. Enjoy your coffee!
+
+---
+
+## 🔗 Links
+
+Add links to useful resources:
+
+- [Local Restaurant Guide](https://www.tripadvisor.com)
+- [Public Transport Info](https://www.google.com/maps)
+- [Emergency Services](https://en.wikipedia.org/wiki/Emergency_service)
+
+---
+
+## 🖼️ Images
+
+Add images by uploading them (click the image button in the editor) or use a URL:
+
+![Example property photo](https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80)
+
+---
+
+## 🎬 Videos
+
+Embed YouTube videos by pasting the video URL:
+
+[![How to use the smart TV](https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+
+*Click the image above to watch the video*
+
+Or simply paste the full YouTube link for guests to click:
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+---
+
+## 📦 Sections with Headers
+
+### Kitchen
+The kitchen is fully equipped with all essentials.
+
+### Bathroom
+Fresh towels are in the cabinet under the sink.
+
+### Bedroom
+Extra blankets are in the closet.
+
+---
+
+## 💡 Tips & Callouts
+
+> **Pro Tip:** Use the ">" symbol at the start of a line to create highlighted callout boxes like this one!
+
+> ⚠️ **Important:** Please don't forget to lock the door when you leave.
+
+---
+
+## ✅ Checklists
+
+Before you leave:
+- [ ] Turn off all lights
+- [ ] Close all windows
+- [ ] Return keys to lockbox
+- [ ] Set thermostat to 68°F
+
+---
+
+*Feel free to delete this sample page once you've created your own content!*`;
+
+    const { data: pageData } = await supabase
+      .from('pages')
+      .insert({
+        space_id: data.id,
+        title: '📖 Getting Started (Example Page)',
+        content: sampleContent,
+        sort_order: 0,
+      })
+      .select()
+      .single();
+
+    const samplePage: SpacePage | null = pageData ? {
+      id: pageData.id,
+      title: pageData.title,
+      content: pageData.content || '',
+      images: [],
+      createdAt: new Date(pageData.created_at),
+      updatedAt: new Date(pageData.updated_at),
+      order: pageData.sort_order,
+    } : null;
+
     const newSpace: Space = {
       id: data.id,
       name: data.name,
       description: data.description || '',
       accessToken: data.access_token,
-      pages: [],
+      pages: samplePage ? [samplePage] : [],
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at),
     };
