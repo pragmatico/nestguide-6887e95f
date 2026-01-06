@@ -110,6 +110,35 @@ export default function QRCodePage() {
               font-size: 18px;
               font-weight: 500;
             }
+            .logo {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+              margin-top: 32px;
+              padding-top: 24px;
+              border-top: 1px solid #eee;
+            }
+            .logo-icon {
+              background: #0891b2;
+              border-radius: 8px;
+              padding: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .logo-icon svg {
+              width: 20px;
+              height: 20px;
+              color: white;
+            }
+            .logo-text {
+              font-size: 18px;
+              font-weight: 700;
+            }
+            .logo-text span {
+              color: #0891b2;
+            }
           </style>
         </head>
         <body>
@@ -118,6 +147,12 @@ export default function QRCodePage() {
             <p>Scan to access property guide</p>
             ${svg.outerHTML}
             <p class="scan-text">📱 Scan me!</p>
+            <div class="logo">
+              <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <span class="logo-text">Nest<span>Guide</span></span>
+            </div>
           </div>
         </body>
       </html>
