@@ -1,14 +1,21 @@
 import { Logo } from './Logo';
 import { Button } from './ui/button';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const isDashboard = location.pathname.startsWith('/dashboard');
+  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/space');
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-lg">
@@ -23,15 +30,27 @@ export function Header() {
           >
             Home
           </Link>
-          <Link 
-            to="/dashboard" 
-            className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-          >
-            My Spaces
-          </Link>
-          {!isDashboard && (
+          {user && (
+            <Link 
+              to="/dashboard" 
+              className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              My Spaces
+            </Link>
+          )}
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                {user.email}
+              </span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
+            </div>
+          ) : (
             <Button asChild variant="hero" size="lg">
-              <Link to="/dashboard">Get Started Free</Link>
+              <Link to="/auth">Get Started Free</Link>
             </Button>
           )}
         </nav>
@@ -63,18 +82,32 @@ export function Header() {
               >
                 Home
               </Link>
-              <Link 
-                to="/dashboard" 
-                className="text-foreground py-2 font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                My Spaces
-              </Link>
-              <Button asChild variant="hero" size="lg" className="w-full">
-                <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                  Get Started Free
+              {user && (
+                <Link 
+                  to="/dashboard" 
+                  className="text-foreground py-2 font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Spaces
                 </Link>
-              </Button>
+              )}
+              {user ? (
+                <>
+                  <span className="text-sm text-muted-foreground py-2">
+                    {user.email}
+                  </span>
+                  <Button variant="outline" className="w-full" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Button asChild variant="hero" size="lg" className="w-full">
+                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                    Get Started Free
+                  </Link>
+                </Button>
+              )}
             </nav>
           </motion.div>
         )}
