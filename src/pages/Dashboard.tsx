@@ -8,6 +8,7 @@ import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { Home, Inbox } from 'lucide-react';
+import { SpaceAddress, SpaceContact } from '@/types/space';
 
 export default function Dashboard() {
   const { spaces, isLoaded, addSpace, deleteSpace } = useSpaces();
@@ -21,8 +22,13 @@ export default function Dashboard() {
     }
   }, [user, authLoading, navigate]);
 
-  const handleCreateSpace = async (name: string, description: string) => {
-    await addSpace(name, description);
+  const handleCreateSpace = async (
+    name: string,
+    description: string,
+    address?: SpaceAddress,
+    contact?: SpaceContact
+  ) => {
+    await addSpace(name, description, address, contact);
   };
 
   const handleDeleteSpace = async (id: string) => {

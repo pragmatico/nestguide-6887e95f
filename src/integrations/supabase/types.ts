@@ -55,28 +55,52 @@ export type Database = {
       spaces: {
         Row: {
           access_token: string
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          contact_whatsapp: string | null
+          country: string | null
           created_at: string
           description: string | null
           id: string
           name: string
+          postal_code: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           access_token?: string
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          country?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name: string
+          postal_code?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           access_token?: string
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          country?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name?: string
+          postal_code?: string | null
           updated_at?: string
           user_id?: string
         }
