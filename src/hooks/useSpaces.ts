@@ -1,121 +1,286 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Space, SpacePage } from '@/types/space';
-import { v4 as uuidv4 } from 'uuid';
-
-const STORAGE_KEY = 'nestguide-spaces';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 export function useSpaces() {
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { user } = useAuth();
 
-  // Load from localStorage on mount
+  // Load spaces from Supabase
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setSpaces(parsed.map((s: Space) => ({
-          ...s,
-          createdAt: new Date(s.createdAt),
-          updatedAt: new Date(s.updatedAt),
-          pages: s.pages.map(p => ({
-            ...p,
-            createdAt: new Date(p.createdAt),
-            updatedAt: new Date(p.updatedAt),
-          })),
-        })));
-      } catch (e) {
-        console.error('Failed to parse spaces:', e);
+    if (!user) {
+      setSpaces([]);
+      setIsLoaded(true);
+      return;
+    }
+
+    const loadSpaces = async () => {
+      const { data: spacesData, error: spacesError } = await supabase
+        .from('spaces')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (spacesError) {
+        console.error('Error loading spaces:', spacesError);
+        setIsLoaded(true);
+        return;
       }
-    }
-    setIsLoaded(true);
-  }, []);
 
-  // Save to localStorage on change
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(spaces));
-    }
-  }, [spaces, isLoaded]);
+      // Load pages for each space
+      const spacesWithPages: Space[] = await Promise.all(
+        (spacesData || []).map(async (space) => {
+          const { data: pagesData } = await supabase
+            .from('pages')
+            .select('*')
+            .eq('space_id', space.id)
+            .order('sort_order', { ascending: true });
 
-  const addSpace = useCallback((name: string, description: string) => {
+          const pages: SpacePage[] = (pagesData || []).map((page) => ({
+            id: page.id,
+            title: page.title,
+            content: page.content || '',
+            images: [],
+            createdAt: new Date(page.created_at),
+            updatedAt: new Date(page.updated_at),
+            order: page.sort_order,
+          }));
+
+          return {
+            id: space.id,
+            name: space.name,
+            description: space.description || '',
+            accessToken: space.access_token,
+            pages,
+            createdAt: new Date(space.created_at),
+            updatedAt: new Date(space.updated_at),
+          };
+        })
+      );
+
+      setSpaces(spacesWithPages);
+      setIsLoaded(true);
+    };
+
+    loadSpaces();
+  }, [user]);
+
+  const addSpace = useCallback(async (name: string, description: string) => {
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('spaces')
+      .insert({
+        user_id: user.id,
+        name,
+        description,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating space:', error);
+      return null;
+    }
+
     const newSpace: Space = {
-      id: uuidv4(),
-      name,
-      description,
-      accessToken: uuidv4().replace(/-/g, '').substring(0, 16),
+      id: data.id,
+      name: data.name,
+      description: data.description || '',
+      accessToken: data.access_token,
       pages: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
     };
-    setSpaces(prev => [...prev, newSpace]);
+
+    setSpaces((prev) => [newSpace, ...prev]);
     return newSpace;
+  }, [user]);
+
+  const updateSpace = useCallback(async (id: string, updates: Partial<Space>) => {
+    const { error } = await supabase
+      .from('spaces')
+      .update({
+        name: updates.name,
+        description: updates.description,
+      })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating space:', error);
+      return;
+    }
+
+    setSpaces((prev) =>
+      prev.map((space) =>
+        space.id === id
+          ? { ...space, ...updates, updatedAt: new Date() }
+          : space
+      )
+    );
   }, []);
 
-  const updateSpace = useCallback((id: string, updates: Partial<Space>) => {
-    setSpaces(prev => prev.map(space => 
-      space.id === id 
-        ? { ...space, ...updates, updatedAt: new Date() }
-        : space
-    ));
+  const deleteSpace = useCallback(async (id: string) => {
+    const { error } = await supabase.from('spaces').delete().eq('id', id);
+
+    if (error) {
+      console.error('Error deleting space:', error);
+      return;
+    }
+
+    setSpaces((prev) => prev.filter((space) => space.id !== id));
   }, []);
 
-  const deleteSpace = useCallback((id: string) => {
-    setSpaces(prev => prev.filter(space => space.id !== id));
-  }, []);
+  const getSpace = useCallback(
+    (id: string) => {
+      return spaces.find((space) => space.id === id);
+    },
+    [spaces]
+  );
 
-  const getSpace = useCallback((id: string) => {
-    return spaces.find(space => space.id === id);
-  }, [spaces]);
+  const getSpaceByToken = useCallback(
+    async (token: string) => {
+      // First check local state
+      const localSpace = spaces.find((space) => space.accessToken === token);
+      if (localSpace) return localSpace;
 
-  const getSpaceByToken = useCallback((token: string) => {
-    return spaces.find(space => space.accessToken === token);
-  }, [spaces]);
+      // Otherwise fetch from database (for public access)
+      const { data: spaceData, error: spaceError } = await supabase
+        .from('spaces')
+        .select('*')
+        .eq('access_token', token)
+        .single();
 
-  const addPage = useCallback((spaceId: string, title: string, content: string = '') => {
-    const newPage: SpacePage = {
-      id: uuidv4(),
-      title,
-      content,
-      images: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      order: spaces.find(s => s.id === spaceId)?.pages.length || 0,
-    };
-    setSpaces(prev => prev.map(space => 
-      space.id === spaceId 
-        ? { ...space, pages: [...space.pages, newPage], updatedAt: new Date() }
-        : space
-    ));
-    return newPage;
-  }, [spaces]);
+      if (spaceError || !spaceData) return undefined;
 
-  const updatePage = useCallback((spaceId: string, pageId: string, updates: Partial<SpacePage>) => {
-    setSpaces(prev => prev.map(space => 
-      space.id === spaceId 
-        ? {
-            ...space,
-            pages: space.pages.map(page => 
-              page.id === pageId 
-                ? { ...page, ...updates, updatedAt: new Date() }
-                : page
-            ),
-            updatedAt: new Date(),
-          }
-        : space
-    ));
-  }, []);
+      const { data: pagesData } = await supabase
+        .from('pages')
+        .select('*')
+        .eq('space_id', spaceData.id)
+        .order('sort_order', { ascending: true });
 
-  const deletePage = useCallback((spaceId: string, pageId: string) => {
-    setSpaces(prev => prev.map(space => 
-      space.id === spaceId 
-        ? {
-            ...space,
-            pages: space.pages.filter(page => page.id !== pageId),
-            updatedAt: new Date(),
-          }
-        : space
-    ));
+      const pages: SpacePage[] = (pagesData || []).map((page) => ({
+        id: page.id,
+        title: page.title,
+        content: page.content || '',
+        images: [],
+        createdAt: new Date(page.created_at),
+        updatedAt: new Date(page.updated_at),
+        order: page.sort_order,
+      }));
+
+      return {
+        id: spaceData.id,
+        name: spaceData.name,
+        description: spaceData.description || '',
+        accessToken: spaceData.access_token,
+        pages,
+        createdAt: new Date(spaceData.created_at),
+        updatedAt: new Date(spaceData.updated_at),
+      };
+    },
+    [spaces]
+  );
+
+  const addPage = useCallback(
+    async (spaceId: string, title: string, content: string = '') => {
+      const space = spaces.find((s) => s.id === spaceId);
+      const sortOrder = space?.pages.length || 0;
+
+      const { data, error } = await supabase
+        .from('pages')
+        .insert({
+          space_id: spaceId,
+          title,
+          content,
+          sort_order: sortOrder,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating page:', error);
+        return null;
+      }
+
+      const newPage: SpacePage = {
+        id: data.id,
+        title: data.title,
+        content: data.content || '',
+        images: [],
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+        order: data.sort_order,
+      };
+
+      setSpaces((prev) =>
+        prev.map((space) =>
+          space.id === spaceId
+            ? { ...space, pages: [...space.pages, newPage], updatedAt: new Date() }
+            : space
+        )
+      );
+      return newPage;
+    },
+    [spaces]
+  );
+
+  const updatePage = useCallback(
+    async (spaceId: string, pageId: string, updates: Partial<SpacePage>) => {
+      const { error } = await supabase
+        .from('pages')
+        .update({
+          title: updates.title,
+          content: updates.content,
+          sort_order: updates.order,
+        })
+        .eq('id', pageId);
+
+      if (error) {
+        console.error('Error updating page:', error);
+        return;
+      }
+
+      setSpaces((prev) =>
+        prev.map((space) =>
+          space.id === spaceId
+            ? {
+                ...space,
+                pages: space.pages.map((page) =>
+                  page.id === pageId
+                    ? { ...page, ...updates, updatedAt: new Date() }
+                    : page
+                ),
+                updatedAt: new Date(),
+              }
+            : space
+        )
+      );
+    },
+    []
+  );
+
+  const deletePage = useCallback(async (spaceId: string, pageId: string) => {
+    const { error } = await supabase.from('pages').delete().eq('id', pageId);
+
+    if (error) {
+      console.error('Error deleting page:', error);
+      return;
+    }
+
+    setSpaces((prev) =>
+      prev.map((space) =>
+        space.id === spaceId
+          ? {
+              ...space,
+              pages: space.pages.filter((page) => page.id !== pageId),
+              updatedAt: new Date(),
+            }
+          : space
+      )
+    );
   }, []);
 
   return {

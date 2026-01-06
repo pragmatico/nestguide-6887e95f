@@ -9,6 +9,7 @@ import SpaceEditor from "./pages/SpaceEditor";
 import QRCodePage from "./pages/QRCodePage";
 import PublicView from "./pages/PublicView";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 // App loaded successfully
@@ -21,6 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/space/:id" element={<SpaceEditor />} />
           <Route path="/space/:id/qr" element={<QRCodePage />} />

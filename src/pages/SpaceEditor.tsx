@@ -7,19 +7,28 @@ import { MarkdownEditor } from '@/components/MarkdownEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSpaces } from '@/hooks/useSpaces';
+import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
-import { ArrowLeft, QrCode, ExternalLink, Save } from 'lucide-react';
+import { ArrowLeft, QrCode, ExternalLink, Save, Home } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SpaceEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getSpace, updatePage, addPage, deletePage, updateSpace } = useSpaces();
+  const { user, loading: authLoading } = useAuth();
+  const { getSpace, updatePage, addPage, deletePage, isLoaded } = useSpaces();
   const [space, setSpace] = useState(getSpace(id || ''));
   const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
   const [pageTitle, setPageTitle] = useState('');
   const [pageContent, setPageContent] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     const currentSpace = getSpace(id || '');
@@ -27,7 +36,7 @@ export default function SpaceEditor() {
     if (currentSpace?.pages.length && !selectedPageId) {
       setSelectedPageId(currentSpace.pages[0].id);
     }
-  }, [id, getSpace, selectedPageId]);
+  }, [id, getSpace, selectedPageId, isLoaded]);
 
   useEffect(() => {
     if (space && selectedPageId) {
@@ -39,6 +48,17 @@ export default function SpaceEditor() {
       }
     }
   }, [selectedPageId, space]);
+
+  if (authLoading || !isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse flex items-center gap-2">
+          <Home className="w-6 h-6 text-primary" />
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!space) {
     return (
@@ -55,14 +75,16 @@ export default function SpaceEditor() {
 
   const selectedPage = space.pages.find(p => p.id === selectedPageId);
 
-  const handleAddPage = () => {
-    const newPage = addPage(space.id, 'New Page', '');
-    setSelectedPageId(newPage.id);
+  const handleAddPage = async () => {
+    const newPage = await addPage(space.id, 'New Page', '');
+    if (newPage) {
+      setSelectedPageId(newPage.id);
+    }
   };
 
-  const handleDeletePage = (pageId: string) => {
+  const handleDeletePage = async (pageId: string) => {
     if (window.confirm('Delete this page?')) {
-      deletePage(space.id, pageId);
+      await deletePage(space.id, pageId);
       if (selectedPageId === pageId) {
         const remainingPages = space.pages.filter(p => p.id !== pageId);
         setSelectedPageId(remainingPages[0]?.id);
@@ -70,9 +92,9 @@ export default function SpaceEditor() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (selectedPageId) {
-      updatePage(space.id, selectedPageId, { 
+      await updatePage(space.id, selectedPageId, { 
         title: pageTitle, 
         content: pageContent 
       });

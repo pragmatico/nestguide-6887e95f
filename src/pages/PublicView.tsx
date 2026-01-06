@@ -1,19 +1,46 @@
 import { useParams } from 'react-router-dom';
 import { useSpaces } from '@/hooks/useSpaces';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, ChevronRight, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Space } from '@/types/space';
 
 export default function PublicView() {
   const { token } = useParams<{ token: string }>();
   const { getSpaceByToken } = useSpaces();
-  const space = getSpaceByToken(token || '');
-  const [selectedPageId, setSelectedPageId] = useState<string | undefined>(
-    space?.pages[0]?.id
-  );
+  const [space, setSpace] = useState<Space | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const loadSpace = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      const fetchedSpace = await getSpaceByToken(token);
+      setSpace(fetchedSpace || null);
+      if (fetchedSpace?.pages[0]) {
+        setSelectedPageId(fetchedSpace.pages[0].id);
+      }
+      setLoading(false);
+    };
+    loadSpace();
+  }, [token, getSpaceByToken]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse flex items-center gap-2">
+          <Home className="w-6 h-6 text-primary" />
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!space) {
     return (

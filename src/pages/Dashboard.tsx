@@ -1,25 +1,37 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SpaceCard } from '@/components/SpaceCard';
 import { CreateSpaceDialog } from '@/components/CreateSpaceDialog';
 import { useSpaces } from '@/hooks/useSpaces';
+import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { Home, Inbox } from 'lucide-react';
 
 export default function Dashboard() {
   const { spaces, isLoaded, addSpace, deleteSpace } = useSpaces();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
 
-  const handleCreateSpace = (name: string, description: string) => {
-    addSpace(name, description);
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  const handleCreateSpace = async (name: string, description: string) => {
+    await addSpace(name, description);
   };
 
-  const handleDeleteSpace = (id: string) => {
+  const handleDeleteSpace = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this space? This action cannot be undone.')) {
-      deleteSpace(id);
+      await deleteSpace(id);
     }
   };
 
-  if (!isLoaded) {
+  if (authLoading || !isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse flex items-center gap-2">
