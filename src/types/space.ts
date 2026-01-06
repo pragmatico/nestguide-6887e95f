@@ -8,6 +8,20 @@ export interface SpacePage {
   order: number;
 }
 
+export interface SpaceAddress {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+}
+
+export interface SpaceContact {
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+}
+
 export interface Space {
   id: string;
   name: string;
@@ -17,6 +31,8 @@ export interface Space {
   createdAt: Date;
   updatedAt: Date;
   coverImage?: string;
+  address?: SpaceAddress;
+  contact?: SpaceContact;
 }
 
 export interface SpaceStore {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Space, SpacePage } from '@/types/space';
+import { Space, SpacePage, SpaceAddress, SpaceContact } from '@/types/space';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
@@ -56,6 +56,18 @@ export function useSpaces() {
             pages,
             createdAt: new Date(space.created_at),
             updatedAt: new Date(space.updated_at),
+            address: space.address_line1 || space.city || space.country ? {
+              line1: space.address_line1 || undefined,
+              line2: space.address_line2 || undefined,
+              city: space.city || undefined,
+              postalCode: space.postal_code || undefined,
+              country: space.country || undefined,
+            } : undefined,
+            contact: space.contact_phone || space.contact_whatsapp || space.contact_email ? {
+              phone: space.contact_phone || undefined,
+              whatsapp: space.contact_whatsapp || undefined,
+              email: space.contact_email || undefined,
+            } : undefined,
           };
         })
       );
@@ -67,7 +79,12 @@ export function useSpaces() {
     loadSpaces();
   }, [user]);
 
-  const addSpace = useCallback(async (name: string, description: string) => {
+  const addSpace = useCallback(async (
+    name: string,
+    description: string,
+    address?: SpaceAddress,
+    contact?: SpaceContact
+  ) => {
     if (!user) return null;
 
     const { data, error } = await supabase
@@ -76,6 +93,14 @@ export function useSpaces() {
         user_id: user.id,
         name,
         description,
+        address_line1: address?.line1 || null,
+        address_line2: address?.line2 || null,
+        city: address?.city || null,
+        postal_code: address?.postalCode || null,
+        country: address?.country || null,
+        contact_phone: contact?.phone || null,
+        contact_whatsapp: contact?.whatsapp || null,
+        contact_email: contact?.email || null,
       })
       .select()
       .single();
@@ -208,6 +233,8 @@ Before you leave:
       pages: samplePage ? [samplePage] : [],
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at),
+      address,
+      contact,
     };
 
     setSpaces((prev) => [newSpace, ...prev]);
@@ -294,6 +321,18 @@ Before you leave:
         pages,
         createdAt: new Date(spaceData.created_at),
         updatedAt: new Date(spaceData.updated_at),
+        address: spaceData.address_line1 || spaceData.city || spaceData.country ? {
+          line1: spaceData.address_line1 || undefined,
+          line2: spaceData.address_line2 || undefined,
+          city: spaceData.city || undefined,
+          postalCode: spaceData.postal_code || undefined,
+          country: spaceData.country || undefined,
+        } : undefined,
+        contact: spaceData.contact_phone || spaceData.contact_whatsapp || spaceData.contact_email ? {
+          phone: spaceData.contact_phone || undefined,
+          whatsapp: spaceData.contact_whatsapp || undefined,
+          email: spaceData.contact_email || undefined,
+        } : undefined,
       };
     },
     [spaces]
