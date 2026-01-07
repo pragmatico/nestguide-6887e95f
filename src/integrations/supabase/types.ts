@@ -111,7 +111,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_space_id_by_token: { Args: { _token: string }; Returns: string }
+      has_valid_access_token: {
+        Args: { _space_id: string; _token: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
