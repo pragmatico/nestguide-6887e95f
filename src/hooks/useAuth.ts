@@ -27,13 +27,21 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    const redirectUrl = `${window.location.origin}/`;
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+  const sendOtp = async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
       options: {
-        redirectTo: redirectUrl,
+        shouldCreateUser: true,
       },
+    });
+    return { error };
+  };
+
+  const verifyOtp = async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
     });
     return { error };
   };
@@ -47,7 +55,8 @@ export function useAuth() {
     user,
     session,
     loading,
-    signInWithGoogle,
+    sendOtp,
+    verifyOtp,
     signOut,
   };
 }
