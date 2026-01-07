@@ -137,7 +137,12 @@ export function MarkdownEditor({ content, onChange, onSave, onImageUpload }: Mar
         <TabsContent value="preview" className="m-0">
           <div className="prose-custom min-h-[400px] p-4 bg-background">
             {content ? (
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown
+                disallowedElements={['script', 'iframe', 'embed', 'object', 'style', 'link', 'meta', 'form', 'input', 'button']}
+                unwrapDisallowed={true}
+              >
+                {content}
+              </ReactMarkdown>
             ) : (
               <p className="text-muted-foreground italic">Nothing to preview yet...</p>
             )}

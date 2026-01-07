@@ -157,7 +157,12 @@ export default function PublicView() {
                   {selectedPage.title}
                 </h1>
                 <div className="prose-custom">
-                  <ReactMarkdown>{selectedPage.content}</ReactMarkdown>
+                  <ReactMarkdown
+                    disallowedElements={['script', 'iframe', 'embed', 'object', 'style', 'link', 'meta', 'form', 'input', 'button']}
+                    unwrapDisallowed={true}
+                  >
+                    {selectedPage.content}
+                  </ReactMarkdown>
                 </div>
               </motion.article>
             ) : (
