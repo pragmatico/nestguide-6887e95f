@@ -288,12 +288,13 @@ Before you leave:
       const localSpace = spaces.find((space) => space.accessToken === token);
       if (localSpace) return localSpace;
 
-      // Otherwise fetch from database (for public access)
+      // Fetch from database with access token header for RLS validation
       const { data: spaceData, error: spaceError } = await supabase
         .from('spaces')
         .select('*')
         .eq('access_token', token)
-        .single();
+        .single()
+        .setHeader('x-access-token', token);
 
       if (spaceError || !spaceData) return undefined;
 
@@ -301,7 +302,8 @@ Before you leave:
         .from('pages')
         .select('*')
         .eq('space_id', spaceData.id)
-        .order('sort_order', { ascending: true });
+        .order('sort_order', { ascending: true })
+        .setHeader('x-access-token', token);
 
       const pages: SpacePage[] = (pagesData || []).map((page) => ({
         id: page.id,
