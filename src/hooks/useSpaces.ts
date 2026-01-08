@@ -215,6 +215,38 @@ Before you leave:
       .select()
       .single();
 
+    // Create the Contact Us page with contact information
+    const contactContent = `# Contact Us
+
+Need to get in touch? Here's how you can reach us:
+
+---
+
+## 📧 Email
+
+**${contact?.email}**
+
+---
+
+## 📞 Phone
+
+**${contact?.phone}**
+
+---
+
+We're here to help make your stay as comfortable as possible!`;
+
+    const { data: contactPageData } = await supabase
+      .from('pages')
+      .insert({
+        space_id: data.id,
+        title: '📞 Contact Us',
+        content: contactContent,
+        sort_order: 1,
+      })
+      .select()
+      .single();
+
     const samplePage: SpacePage | null = pageData ? {
       id: pageData.id,
       title: pageData.title,
@@ -225,12 +257,26 @@ Before you leave:
       order: pageData.sort_order,
     } : null;
 
+    const contactPage: SpacePage | null = contactPageData ? {
+      id: contactPageData.id,
+      title: contactPageData.title,
+      content: contactPageData.content || '',
+      images: [],
+      createdAt: new Date(contactPageData.created_at),
+      updatedAt: new Date(contactPageData.updated_at),
+      order: contactPageData.sort_order,
+    } : null;
+
+    const pages: SpacePage[] = [];
+    if (samplePage) pages.push(samplePage);
+    if (contactPage) pages.push(contactPage);
+
     const newSpace: Space = {
       id: data.id,
       name: data.name,
       description: data.description || '',
       accessToken: data.access_token,
-      pages: samplePage ? [samplePage] : [],
+      pages,
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at),
       address,
