@@ -140,6 +140,16 @@ export function MarkdownEditor({ content, onChange, onSave, onImageUpload }: Mar
               <ReactMarkdown
                 disallowedElements={['script', 'iframe', 'embed', 'object', 'style', 'link', 'meta', 'form', 'input', 'button']}
                 unwrapDisallowed={true}
+                components={{
+                  img: ({ src, alt }) => (
+                    <img 
+                      src={src} 
+                      alt={alt || ''} 
+                      className="max-w-full h-auto rounded-lg"
+                      loading="lazy"
+                    />
+                  )
+                }}
               >
                 {content}
               </ReactMarkdown>
