@@ -25,7 +25,7 @@ interface CreateSpaceDialogProps {
   ) => void;
 }
 
-const emailSchema = z.string().email().optional().or(z.literal(''));
+const emailSchema = z.string().email({ message: 'Please enter a valid email address' });
 const phoneSchema = z.string().max(20).optional();
 
 export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
@@ -66,13 +66,11 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate email if provided
-    if (email.trim()) {
-      const result = emailSchema.safeParse(email.trim());
-      if (!result.success) {
-        setEmailError('Please enter a valid email address');
-        return;
-      }
+    // Validate email (required)
+    const result = emailSchema.safeParse(email.trim());
+    if (!result.success) {
+      setEmailError(result.error.errors[0]?.message || 'Please enter a valid email address');
+      return;
     }
     setEmailError('');
 
@@ -228,7 +226,9 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
                     />
                   </div>
                   <div className="grid gap-2">
+                    <Label htmlFor="contact-email">Contact Email *</Label>
                     <Input
+                      id="contact-email"
                       type="email"
                       placeholder="Email address"
                       value={email}
@@ -237,6 +237,7 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
                         setEmailError('');
                       }}
                       maxLength={255}
+                      required
                     />
                     {emailError && (
                       <p className="text-sm text-destructive">{emailError}</p>
