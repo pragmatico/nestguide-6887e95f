@@ -26,7 +26,7 @@ interface CreateSpaceDialogProps {
 }
 
 const emailSchema = z.string().email({ message: 'Please enter a valid email address' });
-const phoneSchema = z.string().max(20).optional();
+const phoneSchema = z.string().min(1, { message: 'Phone number is required' }).max(20, { message: 'Phone number must be less than 20 characters' });
 
 export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
   const [open, setOpen] = useState(false);
@@ -47,6 +47,8 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
   const [email, setEmail] = useState('');
   
   const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [nameError, setNameError] = useState('');
 
   const resetForm = () => {
     setName('');
@@ -60,45 +62,56 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
     setWhatsapp('');
     setEmail('');
     setEmailError('');
-    setShowOptional(false);
+    setPhoneError('');
+    setNameError('');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate name
+    if (!name.trim() || name.trim().length < 3) {
+      setNameError('Space name must be at least 3 characters');
+      return;
+    }
+    setNameError('');
+
     // Validate email (required)
-    const result = emailSchema.safeParse(email.trim());
-    if (!result.success) {
-      setEmailError(result.error.errors[0]?.message || 'Please enter a valid email address');
+    const emailResult = emailSchema.safeParse(email.trim());
+    if (!emailResult.success) {
+      setEmailError(emailResult.error.errors[0]?.message || 'Please enter a valid email address');
       return;
     }
     setEmailError('');
 
-    if (name.trim()) {
-      const address: SpaceAddress | undefined = 
-        addressLine1 || addressLine2 || city || postalCode || country
-          ? {
-              line1: addressLine1.trim() || undefined,
-              line2: addressLine2.trim() || undefined,
-              city: city.trim() || undefined,
-              postalCode: postalCode.trim() || undefined,
-              country: country.trim() || undefined,
-            }
-          : undefined;
-
-      const contact: SpaceContact | undefined = 
-        phone || whatsapp || email
-          ? {
-              phone: phone.trim() || undefined,
-              whatsapp: whatsapp.trim() || undefined,
-              email: email.trim() || undefined,
-            }
-          : undefined;
-
-      onCreateSpace(name.trim(), description.trim(), address, contact);
-      resetForm();
-      setOpen(false);
+    // Validate phone (required)
+    const phoneResult = phoneSchema.safeParse(phone.trim());
+    if (!phoneResult.success) {
+      setPhoneError(phoneResult.error.errors[0]?.message || 'Phone number is required');
+      return;
     }
+    setPhoneError('');
+
+    const address: SpaceAddress | undefined = 
+      addressLine1 || addressLine2 || city || postalCode || country
+        ? {
+            line1: addressLine1.trim() || undefined,
+            line2: addressLine2.trim() || undefined,
+            city: city.trim() || undefined,
+            postalCode: postalCode.trim() || undefined,
+            country: country.trim() || undefined,
+          }
+        : undefined;
+
+    const contact: SpaceContact = {
+      phone: phone.trim(),
+      whatsapp: whatsapp.trim() || undefined,
+      email: email.trim(),
+    };
+
+    onCreateSpace(name.trim(), description.trim(), address, contact);
+    resetForm();
+    setOpen(false);
   };
 
   return (
@@ -127,10 +140,16 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
                 id="name"
                 placeholder="e.g., Beach House, Mountain Cabin"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setNameError('');
+                }}
                 maxLength={100}
                 required
               />
+              {nameError && (
+                <p className="text-sm text-destructive">{nameError}</p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="description">Description (optional)</Label>
@@ -144,6 +163,50 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
               />
             </div>
 
+            {/* Mandatory Contact Fields */}
+            <div className="space-y-3 border-t border-border pt-4">
+              <h4 className="text-sm font-medium text-foreground">Contact Details</h4>
+              <p className="text-sm text-muted-foreground">
+                This information will be displayed on the Contact Us page.
+              </p>
+              <div className="grid gap-2">
+                <Label htmlFor="contact-email">Contact Email *</Label>
+                <Input
+                  id="contact-email"
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError('');
+                  }}
+                  maxLength={255}
+                  required
+                />
+                {emailError && (
+                  <p className="text-sm text-destructive">{emailError}</p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="contact-phone">Contact Phone *</Label>
+                <Input
+                  id="contact-phone"
+                  type="tel"
+                  placeholder="Phone number"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    setPhoneError('');
+                  }}
+                  maxLength={20}
+                  required
+                />
+                {phoneError && (
+                  <p className="text-sm text-destructive">{phoneError}</p>
+                )}
+              </div>
+            </div>
+
             {/* Collapsible Optional Fields */}
             <Button
               type="button"
@@ -151,7 +214,7 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
               className="w-full justify-between text-muted-foreground hover:text-foreground"
               onClick={() => setShowOptional(!showOptional)}
             >
-              <span>Optional: Address & Contact Details</span>
+              <span>Optional: Address & WhatsApp</span>
               {showOptional ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -204,18 +267,9 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
                   </div>
                 </div>
 
-                {/* Contact Section */}
+                {/* WhatsApp Section */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-foreground">Contact Details</h4>
-                  <div className="grid gap-2">
-                    <Input
-                      type="tel"
-                      placeholder="Phone number"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      maxLength={20}
-                    />
-                  </div>
+                  <h4 className="text-sm font-medium text-foreground">WhatsApp (Optional)</h4>
                   <div className="grid gap-2">
                     <Input
                       type="tel"
@@ -224,24 +278,6 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
                       onChange={(e) => setWhatsapp(e.target.value)}
                       maxLength={20}
                     />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="contact-email">Contact Email *</Label>
-                    <Input
-                      id="contact-email"
-                      type="email"
-                      placeholder="Email address"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setEmailError('');
-                      }}
-                      maxLength={255}
-                      required
-                    />
-                    {emailError && (
-                      <p className="text-sm text-destructive">{emailError}</p>
-                    )}
                   </div>
                 </div>
               </div>
