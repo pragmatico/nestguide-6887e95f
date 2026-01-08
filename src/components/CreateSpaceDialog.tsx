@@ -208,7 +208,7 @@ export function CreateSpaceDialog({ onCreateSpace }: CreateSpaceDialogProps) {
 
                 {/* Contact Section */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-foreground">Landlord Contact</h4>
+                  <h4 className="text-sm font-medium text-foreground">Contact Details</h4>
                   <div className="grid gap-2">
                     <Input
                       type="tel"
