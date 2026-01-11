@@ -62,9 +62,9 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1">
+      <main className="flex-1" role="main">
         {/* Hero Section */}
-        <section className="relative overflow-hidden hero-gradient">
+        <section className="relative overflow-hidden hero-gradient" aria-labelledby="hero-heading">
           <div className="container mx-auto px-4 py-20 md:py-32">
             <div className="max-w-3xl mx-auto text-center">
               <motion.div
@@ -73,12 +73,13 @@ const Index = () => {
                 transition={{ duration: 0.6 }}
               >
                 <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-                  <HomeIcon className="w-4 h-4" />
+                  <HomeIcon className="w-4 h-4" aria-hidden="true" />
                   Welcome Guides for Properties
                 </span>
               </motion.div>
               
               <motion.h1
+                id="hero-heading"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
@@ -106,80 +107,78 @@ const Index = () => {
                 className="flex flex-col sm:flex-row gap-4 justify-center"
               >
                 <Button asChild variant="hero" size="xl">
-                  <Link to="/dashboard">
+                  <Link to="/dashboard" aria-label="Create your free property welcome guide">
                     Create Your Free Space
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button asChild variant="heroOutline" size="xl">
-                  <a href="#features">See How It Works</a>
+                  <a href="#features" aria-label="Learn how NestGuide works">See How It Works</a>
                 </Button>
               </motion.div>
             </div>
           </div>
 
           {/* Decorative elements */}
-          <div className="absolute top-20 left-10 w-20 h-20 bg-primary/10 rounded-full blur-2xl" />
-          <div className="absolute bottom-20 right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
+          <div className="absolute top-20 left-10 w-20 h-20 bg-primary/10 rounded-full blur-2xl" aria-hidden="true" />
+          <div className="absolute bottom-20 right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" aria-hidden="true" />
         </section>
 
         {/* Use Cases Section */}
-        <section className="py-16 md:py-24 bg-card">
+        <section className="py-16 md:py-24 bg-card" aria-labelledby="use-cases-heading">
           <div className="container mx-auto px-4">
-            <motion.div
+            <motion.header
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              <h2 id="use-cases-heading" className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
                 Everything Your Guests Need
               </h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Put all the important information in one place. No more texts asking for the WiFi password!
               </p>
-            </motion.div>
+            </motion.header>
 
-            <div className="max-w-3xl mx-auto">
-              <div className="grid sm:grid-cols-2 gap-4">
-                {useCases.map((useCase, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="flex items-center gap-3 p-4 rounded-lg bg-background border border-border/50"
-                  >
-                    <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                    <span className="text-foreground">{useCase}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+            <ul className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4" role="list" aria-label="Property guide use cases">
+              {useCases.map((useCase, index) => (
+                <motion.li
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-3 p-4 rounded-lg bg-background border border-border/50"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
+                  <span className="text-foreground">{useCase}</span>
+                </motion.li>
+              ))}
+            </ul>
           </div>
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-16 md:py-24">
+        <section id="features" className="py-16 md:py-24" aria-labelledby="features-heading">
           <div className="container mx-auto px-4">
-            <motion.div
+            <motion.header
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              <h2 id="features-heading" className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
                 Powerful Features, Simple Experience
               </h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Everything you need to create professional property guides in minutes.
               </p>
-            </motion.div>
+            </motion.header>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="NestGuide features">
               {features.map((feature, index) => (
                 <FeatureCard
                   key={index}
@@ -194,7 +193,7 @@ const Index = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-primary/5">
+        <section className="py-16 md:py-24 bg-primary/5" aria-labelledby="cta-heading">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -203,16 +202,16 @@ const Index = () => {
               viewport={{ once: true }}
               className="max-w-3xl mx-auto text-center"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              <h2 id="cta-heading" className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
                 Ready to Welcome Your Guests Better?
               </h2>
               <p className="text-muted-foreground text-lg mb-8">
                 Create your first space for free. No credit card required.
               </p>
               <Button asChild variant="hero" size="xl">
-                <Link to="/dashboard">
+                <Link to="/dashboard" aria-label="Start creating your property guide now">
                   Get Started Now
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5" aria-hidden="true" />
                 </Link>
               </Button>
             </motion.div>
