@@ -141,14 +141,32 @@ export function MarkdownEditor({ content, onChange, onSave, onImageUpload }: Mar
                 disallowedElements={['script', 'iframe', 'embed', 'object', 'style', 'link', 'meta', 'form', 'input', 'button']}
                 unwrapDisallowed={true}
                 components={{
-                  img: ({ src, alt }) => (
-                    <img 
-                      src={src} 
-                      alt={alt || ''} 
-                      className="max-w-full h-auto rounded-lg"
-                      loading="lazy"
-                    />
-                  )
+                  img: ({ src, alt }) => {
+                    // Only allow http:// and https:// URLs to prevent javascript: and data: XSS
+                    const safeSrc = src && /^https?:\/\//i.test(src) ? src : '';
+                    return safeSrc ? (
+                      <img 
+                        src={safeSrc} 
+                        alt={alt || ''} 
+                        className="max-w-full h-auto rounded-lg"
+                        loading="lazy"
+                      />
+                    ) : null;
+                  },
+                  a: ({ href, children }) => {
+                    // Only allow http:// and https:// URLs for links
+                    const safeHref = href && /^https?:\/\//i.test(href) ? href : '#';
+                    return (
+                      <a 
+                        href={safeHref} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {children}
+                      </a>
+                    );
+                  }
                 }}
               >
                 {content}
