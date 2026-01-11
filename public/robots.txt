@@ -1,8 +1,12 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /dashboard
+Disallow: /space/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /dashboard
+Disallow: /space/
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +16,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /space/
+
+Sitemap: https://nestguide.app/sitemap.xml
