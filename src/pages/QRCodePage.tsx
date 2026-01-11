@@ -1,20 +1,57 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSpaces } from '@/hooks/useSpaces';
+import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Download, Printer, Copy, Check } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { ArrowLeft, Download, Printer, Copy, Check, Home } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 
+// HTML escape function to prevent XSS in document.write
+const escapeHtml = (str: string): string => {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
 export default function QRCodePage() {
   const { id } = useParams<{ id: string }>();
-  const { getSpace } = useSpaces();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { spaces, getSpace, isLoaded } = useSpaces();
   const space = getSpace(id || '');
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  // Verify ownership - redirect if user doesn't own this space
+  useEffect(() => {
+    if (isLoaded && space && user) {
+      const userOwnsSpace = spaces.some(s => s.id === space.id);
+      if (!userOwnsSpace) {
+        navigate('/dashboard');
+      }
+    }
+  }, [space, user, isLoaded, spaces, navigate]);
+
+  if (authLoading || !isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse flex items-center gap-2">
+          <Home className="w-6 h-6 text-primary" />
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!space) {
     return (
@@ -73,11 +110,14 @@ export default function QRCodePage() {
     const svg = qrRef.current?.querySelector('svg');
     if (!svg) return;
 
+    // Escape space name to prevent XSS
+    const safeName = escapeHtml(space.name);
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>QR Code - ${space.name}</title>
+          <title>QR Code - ${safeName}</title>
           <style>
             body {
               display: flex;
@@ -143,7 +183,7 @@ export default function QRCodePage() {
         </head>
         <body>
           <div class="container">
-            <h1>${space.name}</h1>
+            <h1>${safeName}</h1>
             <p>Scan to access property guide</p>
             ${svg.outerHTML}
             <p class="scan-text">📱 Scan me!</p>
