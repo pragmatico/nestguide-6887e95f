@@ -16,7 +16,7 @@ export default function SpaceEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { getSpace, updatePage, addPage, deletePage, isLoaded } = useSpaces();
+  const { spaces, getSpace, updatePage, addPage, deletePage, isLoaded } = useSpaces();
   const [space, setSpace] = useState(getSpace(id || ''));
   const [selectedPageId, setSelectedPageId] = useState<string | undefined>();
   const [pageTitle, setPageTitle] = useState('');
@@ -29,6 +29,16 @@ export default function SpaceEditor() {
       navigate('/auth');
     }
   }, [user, authLoading, navigate]);
+
+  // Verify ownership - redirect if user doesn't own this space
+  useEffect(() => {
+    if (isLoaded && space && user) {
+      const userOwnsSpace = spaces.some(s => s.id === space.id);
+      if (!userOwnsSpace) {
+        navigate('/dashboard');
+      }
+    }
+  }, [space, user, isLoaded, spaces, navigate]);
 
   useEffect(() => {
     const currentSpace = getSpace(id || '');
