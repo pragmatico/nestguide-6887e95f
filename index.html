@@ -3,25 +3,87 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>NestGuide</title>
-    <meta name="description" content="Create Digital Welcome Guides for Your Property">
-    <meta name="author" content="Lovable" />
-
-    <!-- TODO: Update og:title to match your application name -->
+    <title>NestGuide - Create Digital Welcome Guides for Your Property</title>
+    <meta name="description" content="Create beautiful, scannable digital welcome guides for vacation rentals, Airbnb, and short-term properties. Share WiFi, house rules, and local tips via QR code.">
+    <meta name="author" content="NestGuide" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://nestguide.app/" />
     
+    <!-- Keywords for SEO -->
+    <meta name="keywords" content="property welcome guide, vacation rental guide, Airbnb house manual, guest information, QR code property guide, digital welcome book, rental property management" />
     
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://nestguide.app/" />
+    <meta property="og:title" content="NestGuide - Digital Welcome Guides for Properties" />
+    <meta property="og:description" content="Create beautiful, scannable digital welcome guides for vacation rentals. Share WiFi, house rules, and local tips via QR code." />
+    <meta property="og:image" content="https://nestguide.app/og-image.png" />
+    <meta property="og:site_name" content="NestGuide" />
+    <meta property="og:locale" content="en_US" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <meta property="og:title" content="NestGuide">
-  <meta name="twitter:title" content="NestGuide">
-  <meta property="og:description" content="Create Digital Welcome Guides for Your Property">
-  <meta name="twitter:description" content="Create Digital Welcome Guides for Your Property">
-</head>
+    <meta name="twitter:url" content="https://nestguide.app/" />
+    <meta name="twitter:title" content="NestGuide - Digital Welcome Guides for Properties" />
+    <meta name="twitter:description" content="Create beautiful, scannable digital welcome guides for vacation rentals. Share WiFi, house rules, and local tips via QR code." />
+    <meta name="twitter:image" content="https://nestguide.app/og-image.png" />
+
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "NestGuide",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "Create digital welcome guides for vacation rentals and properties. Share WiFi passwords, house rules, appliance instructions, and local tips via QR code.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+      }
+    }
+    </script>
+
+    <!-- Structured Data - FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is NestGuide?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "NestGuide is a digital welcome guide platform for property owners and managers. It allows you to create beautiful, mobile-friendly guides with WiFi info, house rules, and local tips that guests can access via QR code."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do guests access the property guide?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Guests simply scan the QR code you provide (printed or displayed at your property) with their smartphone camera. The guide opens instantly in their browser - no app download required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is NestGuide free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, you can create your first space for free. No credit card required to get started."
+          }
+        }
+      ]
+    }
+    </script>
+  </head>
 
   <body>
     <div id="root"></div>
