@@ -125,8 +125,24 @@ export default function SpaceEditor() {
     setHasUnsavedChanges(true);
   };
 
+  const MAX_IMAGE_SIZE_MB = 5;
+  const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+
   const handleImageUpload = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
+    // Validate file size
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      toast.error(`Image size must be less than ${MAX_IMAGE_SIZE_MB}MB`);
+      throw new Error(`File size exceeds ${MAX_IMAGE_SIZE_MB}MB limit`);
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Only JPEG, PNG, GIF, and WebP images are allowed');
+      throw new Error('Invalid file type');
+    }
+
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
     const fileName = `${user?.id}/${uuidv4()}.${fileExt}`;
     
     const { error } = await supabase.storage
@@ -138,8 +154,6 @@ export default function SpaceEditor() {
       throw error;
     }
     
-    // Store the path in a special format that can be resolved later
-    // Format: lovable-image://path - this will be transformed based on context
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     return `${supabaseUrl}/storage/v1/object/page-images/${fileName}`;
   };
