@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, QrCode, ExternalLink, Save, Home } from 'lucide-react';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function SpaceEditor() {
   const { id } = useParams<{ id: string }>();
@@ -124,13 +126,23 @@ export default function SpaceEditor() {
   };
 
   const handleImageUpload = async (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    });
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user?.id}/${uuidv4()}.${fileExt}`;
+    
+    const { error } = await supabase.storage
+      .from('page-images')
+      .upload(fileName, file);
+    
+    if (error) {
+      toast.error('Failed to upload image');
+      throw error;
+    }
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('page-images')
+      .getPublicUrl(fileName);
+    
+    return publicUrl;
   };
 
   const publicUrl = `${window.location.origin}/view/${space.accessToken}`;
