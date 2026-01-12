@@ -1,9 +1,10 @@
 import { Space } from '@/types/space';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { Button } from './ui/button';
-import { Edit, QrCode, Trash2, FileText, Home } from 'lucide-react';
+import { Edit, QrCode, Trash2, FileText, Home, Link2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface SpaceCardProps {
   space: Space;
@@ -12,6 +13,16 @@ interface SpaceCardProps {
 }
 
 export function SpaceCard({ space, onDelete, index }: SpaceCardProps) {
+  const handleCopyLink = async () => {
+    const publicUrl = `${window.location.origin}/view/${space.accessToken}`;
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      toast.success('Link copied to clipboard!');
+    } catch {
+      toast.error('Failed to copy link');
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -39,7 +50,15 @@ export function SpaceCard({ space, onDelete, index }: SpaceCardProps) {
               Edit
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleCopyLink}
+            title="Copy share link"
+          >
+            <Link2 className="w-4 h-4" />
+          </Button>
+          <Button asChild variant="outline" size="sm" title="View QR code">
             <Link to={`/space/${space.id}/qr`}>
               <QrCode className="w-4 h-4" />
             </Link>
