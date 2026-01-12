@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Home, ChevronRight, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Space } from '@/types/space';
+import { SecureImage } from '@/components/SecureImage';
 
 export default function PublicView() {
   const { token } = useParams<{ token: string }>();
@@ -30,6 +31,7 @@ export default function PublicView() {
     };
     loadSpace();
   }, [token, getSpaceByToken]);
+
 
   if (loading) {
     return (
@@ -162,16 +164,16 @@ export default function PublicView() {
                     unwrapDisallowed={true}
                     components={{
                       img: ({ src, alt }) => {
-                        // Only allow http:// and https:// URLs to prevent javascript: and data: XSS
                         const safeSrc = src && /^https?:\/\//i.test(src) ? src : '';
-                        return safeSrc ? (
-                          <img 
+                        if (!safeSrc || !token) return null;
+                        return (
+                          <SecureImage 
                             src={safeSrc} 
                             alt={alt || ''} 
+                            token={token}
                             className="max-w-full h-auto rounded-lg"
-                            loading="lazy"
                           />
-                        ) : null;
+                        );
                       },
                       a: ({ href, children }) => {
                         // Only allow http:// and https:// URLs for links
