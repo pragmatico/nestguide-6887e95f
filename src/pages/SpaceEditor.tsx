@@ -138,11 +138,10 @@ export default function SpaceEditor() {
       throw error;
     }
     
-    const { data: { publicUrl } } = supabase.storage
-      .from('page-images')
-      .getPublicUrl(fileName);
-    
-    return publicUrl;
+    // Store the path in a special format that can be resolved later
+    // Format: lovable-image://path - this will be transformed based on context
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    return `${supabaseUrl}/storage/v1/object/page-images/${fileName}`;
   };
 
   const publicUrl = `${window.location.origin}/view/${space.accessToken}`;

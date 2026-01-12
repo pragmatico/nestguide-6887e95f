@@ -111,6 +111,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_signed_image_url: {
+        Args: { _expires_in?: number; _image_path: string; _token: string }
+        Returns: string
+      }
       get_space_id_by_token: { Args: { _token: string }; Returns: string }
       has_valid_access_token: {
         Args: { _space_id: string; _token: string }
