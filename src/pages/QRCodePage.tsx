@@ -66,10 +66,8 @@ export default function QRCodePage() {
     );
   }
 
-  // Use the custom domain for QR codes in production
-  const publishedDomain = import.meta.env.PROD 
-    ? 'https://nestguide.co' 
-    : window.location.origin;
+  // Use VITE_PUBLIC_DOMAIN env var for QR codes, fallback to current origin
+  const publishedDomain = import.meta.env.VITE_PUBLIC_DOMAIN || window.location.origin;
   const publicUrl = `${publishedDomain}/view/${space.accessToken}`;
 
   const handleCopyLink = async () => {
